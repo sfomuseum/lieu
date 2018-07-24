@@ -18,11 +18,6 @@ class DedupeGeoJSONJob(MRJob):
             default=False,
             help="Address duplicates only")
 
-        self.add_passthrough_option(
-            '--name-only',
-            action="store_true",
-            default=False,
-            help="Name duplicates only")
 
         self.add_passthrough_option(
             '--address-only-candidates',
@@ -39,7 +34,7 @@ class DedupeGeoJSONJob(MRJob):
 
         self.add_passthrough_option(
             '--geo-model-proportion',
-            type=float,
+            # type=float,
             default=NameAddressDeduperSpark.DEFAULT_GEO_MODEL_PROPORTION,
             help="Weight to use when ")
 
@@ -93,27 +88,47 @@ class DedupeGeoJSONJob(MRJob):
         self.add_passthrough_option(
             '--name-dupe-threshold',
             type='float',
+            dest="name_dupe_threshold",            
             default=DedupeResponse.default_name_dupe_threshold,
             help='Likely-dupe threshold between 0 and 1 for name deduping with Soft-TFIDF')
 
         self.add_passthrough_option(
             '--name-review-threshold',
             type='float',
+            dest="name_review_threshold",
             default=DedupeResponse.default_name_review_threshold,
             help='Human review threshold between 0 and 1 for name deduping with Soft-TFIDF')
 
         self.add_passthrough_option(
             '--with-unit',
             default=False,
+            dest="with_unit",            
             action="store_true",
             help="Include unit comparisons in deduplication (only if both addresses have unit)")
 
         self.add_passthrough_option(
             '--index-type',
+            dest="index_type",
             choices=[WordIndex.TFIDF, WordIndex.INFORMATION_GAIN],
             default=WordIndex.INFORMATION_GAIN,
             help='Model to use for word relevance')
 
+        # hack hack hack...
+        
+        self.add_passthrough_option(
+            '--use-containing',
+            dest="use_containing",
+            action="store_true",
+            default=False,
+            help="...")
+
+        self.add_passthrough_option(
+            '--name-only',
+            dest="name_only",
+            action="store_true",
+            default=False,
+            help="...")
+        
     def spark(self, input_path, output_path):
         from pyspark import SparkContext
 
@@ -170,8 +185,8 @@ class DedupeGeoJSONJob(MRJob):
                                                           .map(lambda (uid2, ((uid1, classification, sim), is_canonical)): ((uid1, uid2), (classification, is_canonical or False, sim)))
 
         if not self.options.address_only:
-            explain = DedupeResponse.explain_name_address_dupe(name_dupe_threshold=self.options.name_dupe_threshold,
-                                                               name_review_threshold=self.options.name_review_threshold,
+            explain = DedupeResponse.explain_name_address_dupe(name_likely_dupe_threshold=self.options.name_dupe_threshold,
+                                                               name_needs_review_threshold=self.options.name_review_threshold,
                                                                with_unit=self.options.with_unit)
         else:
             explain = DedupeResponse.explain_address_dupe(with_unit=self.options.with_unit)

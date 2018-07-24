@@ -40,17 +40,17 @@ class AddressDeduper(object):
         a2_house_number = a2.get(AddressComponents.HOUSE_NUMBER)
 
         if a1_house_number:
-            a1_house_number = a1_house_number.strip()
+            a1_house_number = str(a1_house_number).strip()
         if a2_house_number:
-            a2_house_number = a2_house_number.strip()
+            a2_house_number = str(a2_house_number).strip()
 
         a1_base_house_number = a1.get(AddressComponents.HOUSE_NUMBER_BASE)
         a2_base_house_number = a2.get(AddressComponents.HOUSE_NUMBER_BASE)
 
         if a1_base_house_number:
-            a1_base_house_number = a1_base_house_number.strip()
+            a1_base_house_number = str(a1_base_house_number).strip()
         if a2_base_house_number:
-            a2_base_house_number = a2_base_house_number.strip()
+            a2_base_house_number = str(a2_base_house_number).strip()
 
         if (a1_street and not a2_street) or (a2_street and not a1_street):
             return (duplicate_status.NON_DUPLICATE, 0.0)
