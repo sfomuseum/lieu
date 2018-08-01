@@ -1,5 +1,6 @@
 import re
 import six
+import types
 
 import phonenumbers
 
@@ -322,6 +323,13 @@ class PhoneNumberDeduper(object):
 
     @classmethod
     def revised_dupe_class(cls, dupe_class, a1, a2):
+
+        # https://github.com/openvenues/lieu/issues/15
+
+        if type(dupe_class) == types.NoneType:
+            print "DUPE CLASS IS NONE SO RETURNING NEEDS_REVIEW..."
+            return duplicate_status.NEEDS_REVIEW
+
         p1, p2 = cls.normalized_phone_numbers(a1, a2)
         have_phone_number = p1 is not None and p2 is not None
         same_phone_number = cls.is_phone_number_dupe(p1, p2)
